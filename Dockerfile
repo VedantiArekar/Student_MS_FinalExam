@@ -1,42 +1,50 @@
-# Dockerfile - builds the production image of the Student Management System.
-# Build:  docker build -t student-ms .
+# Stage 1: Dependencies
+FROM ruby:4.0.9-slim AS dependencies
 
-FROM ruby:3.3-slim
-
-# 1. Operating system packages
-#    build-essential + libpq-dev : needed to install the "pg" gem (PostgreSQL driver)
-#    curl                        : used by the container health check
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential libpq-dev curl && \
+    apt-get install --no-install-recommends -y build-essential libpq-dev && \
     rm -rf /var/lib/apt/lists/*
 
-# 2. Settings for production
+WORKDIR /app
+
+ENV RAILS_ENV=production \
+    BUNDLE_WITHOUT="development:test"
+
+COPY Gemfile Gemfile.lock ./
+RUN bundle install
+
+# Stage 2: Build
+# Stage 2: Build
+FROM dependencies AS build
+
+COPY . .
+RUN chmod +x bin/docker-entrypoint
+
+# Stage 3: Production
+FROM ruby:4.0.9-slim AS prod
+
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y libpq5 curl && \
+    rm -rf /var/lib/apt/lists/*
+
 ENV RAILS_ENV=production \
     BUNDLE_WITHOUT="development:test"
 
 WORKDIR /app
 
-# 3. Install the gems first.
-#    Docker caches this step, so it only repeats when the Gemfile changes.
-COPY Gemfile Gemfile.lock* ./
-RUN bundle install
+COPY --from=dependencies /usr/local/bundle /usr/local/bundle
+COPY --from=build /app /app
 
-# 4. Copy the application code
-COPY . .
-RUN chmod +x bin/*
+RUN useradd -m rails && \
+    mkdir -p log tmp storage && \
+    chown -R rails:rails /app
 
-# 5. Run the app as a normal user instead of "root" (safer)
-RUN useradd --create-home rails && \
-    mkdir -p log tmp && \
-    chown -R rails:rails log tmp
 USER rails
 
 EXPOSE 3000
 
-# 6. Docker marks the container "healthy" when /up answers with HTTP 200
 HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:3000/up || exit 1
+    CMD curl -f http://localhost:3000/up || exit 1
 
-# 7. On start: prepare the database, then run the Puma server
 ENTRYPOINT ["/app/bin/docker-entrypoint"]
 CMD ["./bin/rails", "server", "-b", "0.0.0.0", "-p", "3000"]
