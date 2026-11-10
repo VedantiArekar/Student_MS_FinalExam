@@ -14,3 +14,5 @@
 
 # Archives
 *.zip
+
+k6/results.json
