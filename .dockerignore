@@ -1,0 +1,9 @@
+# Files that must NOT be copied into the Docker image
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+log/*
+tmp/*
+*.zip

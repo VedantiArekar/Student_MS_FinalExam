@@ -1,0 +1,90 @@
+<header class="app-header">
+  <h1>Student Management System</h1>
+  <p>DevOps Final Project &middot; Ruby on Rails + PostgreSQL</p>
+</header>
+
+<main class="container">
+
+  <%# Success and error messages are shown here by JavaScript %>
+  <div id="message" class="message" role="status" hidden></div>
+
+  <%# Dashboard: total number of students %>
+  <section class="card stat-card" aria-label="Dashboard">
+    <span class="stat-label">Total Students</span>
+    <span id="total-count" class="stat-number"><%= @total_students %></span>
+  </section>
+
+  <%# Search field and "Add Student" button %>
+  <section class="toolbar">
+    <input type="search" id="search-input" placeholder="Search students by name..."
+           aria-label="Search students by name" autocomplete="off">
+    <button type="button" id="add-button" class="btn btn-primary">+ Add Student</button>
+  </section>
+
+  <%# Student registration / edit form (hidden until needed) %>
+  <section id="form-section" class="card" hidden>
+    <h2 id="form-title">Add Student</h2>
+    <div id="form-errors" class="message message-error" role="alert" hidden></div>
+
+    <form id="student-form">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="full_name">Full name</label>
+          <input type="text" id="full_name" name="full_name" required maxlength="100">
+        </div>
+
+        <div class="form-field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required maxlength="150">
+        </div>
+
+        <div class="form-field">
+          <label for="course">Course</label>
+          <input type="text" id="course" name="course" required maxlength="100">
+        </div>
+
+        <div class="form-field">
+          <label for="semester">Semester (1-12)</label>
+          <input type="number" id="semester" name="semester" required min="1" max="12" step="1">
+        </div>
+      </div>
+
+      <div class="form-buttons">
+        <button type="submit" id="submit-button" class="btn btn-primary">Save Student</button>
+        <button type="button" id="cancel-button" class="btn btn-secondary">Cancel</button>
+      </div>
+    </form>
+  </section>
+
+  <%# Student list %>
+  <section class="card">
+    <h2>Students</h2>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Course</th>
+            <th>Semester</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <%# Rows are created by JavaScript %>
+        <tbody id="students-body"></tbody>
+      </table>
+    </div>
+
+    <p id="empty-message" class="empty-message" hidden>No students found.</p>
+  </section>
+
+</main>
+
+<%# Pop-up window with the details of one student %>
+<dialog id="details-dialog">
+  <h2>Student Details</h2>
+  <dl id="details-list"></dl>
+  <button type="button" id="details-close" class="btn btn-secondary">Close</button>
+</dialog>

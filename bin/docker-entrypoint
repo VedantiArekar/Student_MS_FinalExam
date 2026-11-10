@@ -1,0 +1,24 @@
+#!/bin/bash -e
+# Runs every time the Docker container starts.
+#
+# When the container is going to start the Rails server, first prepare the
+# database: create it if it does not exist and run all pending migrations.
+# PostgreSQL may need a few seconds to start, so we retry a few times.
+
+if [ "$1" = "./bin/rails" ] && [ "$2" = "server" ]; then
+  attempt=1
+  max_attempts=15
+
+  until ./bin/rails db:prepare; do
+    if [ "$attempt" -ge "$max_attempts" ]; then
+      echo "Database is still not reachable - giving up."
+      exit 1
+    fi
+    echo "Database not ready (attempt $attempt of $max_attempts). Retrying in 3 seconds..."
+    attempt=$((attempt + 1))
+    sleep 3
+  done
+fi
+
+# Start the command that was given (normally: rails server)
+exec "$@"

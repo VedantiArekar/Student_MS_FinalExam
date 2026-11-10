@@ -1,0 +1,13 @@
+# Two sample students used by the automated tests.
+
+alice:
+  full_name: Alice Johnson
+  email: alice@example.com
+  course: Computer Science
+  semester: 3
+
+bob:
+  full_name: Bob Miller
+  email: bob@example.com
+  course: Electrical Engineering
+  semester: 5
