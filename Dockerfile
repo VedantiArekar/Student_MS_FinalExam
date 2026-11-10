@@ -14,7 +14,6 @@ COPY Gemfile Gemfile.lock ./
 RUN bundle install
 
 # Stage 2: Build
-# Stage 2: Build
 FROM dependencies AS build
 
 COPY . .
