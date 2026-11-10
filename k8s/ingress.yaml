@@ -1,0 +1,19 @@
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: student-ingress
+  namespace: student-management
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: student-ms.test
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: student-web-service
+                port:
+                  number: 80
