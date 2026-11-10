@@ -1,0 +1,41 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: student-web
+  namespace: student-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: student-web
+  template:
+    metadata:
+      labels:
+        app: student-web
+    spec:
+      containers:
+        - name: rails
+          image: student-ms:v1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - secretRef:
+                name: student-db-secret
+            - secretRef:
+                name: student-rails-secret
+          env:
+            - name: DB_HOST
+              value: student-db-service
+            - name: DB_PORT
+              value: "5432"
+            - name: RAILS_ENV
+              value: production
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "768Mi"
